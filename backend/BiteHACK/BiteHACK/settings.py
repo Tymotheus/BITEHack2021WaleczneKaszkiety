@@ -25,7 +25,8 @@ SECRET_KEY = '*2em(q770m1!*!vtqej+pef4nmtdta31wgaw*zii*d0x7x$8dy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+import os
 
 
 # Application definition
@@ -37,8 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_neomodel',
+    'rest_framework',
+    'corsheaders',
+    'WisHUB.apps.WishubConfig'
 ]
-
+from WisHUB.middleware import * 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,7 +52,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'WisHUB.middleware.CustomCorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'BiteHACK.urls'
 
@@ -76,9 +85,18 @@ WSGI_APPLICATION = 'BiteHACK.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': str(os.path.join(BASE_DIR, "db.sqlite3"))
     }
 }
+
+import neomodel
+NEO4j_user = "app2"
+NEO4j_pass= "6YZnRMQCrA7DDhcQvsjywRXgatUmXS8n6YU76P2RR33wRPW2b4HfWR94xAsuccSSTwxyGsS5fxKmTLsMHDBbh6"
+NEO4j_adress = "192.168.1.37:7687"
+neomodel.config.MAX_POOL_SIZE=50
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', f'bolt://{NEO4j_user}:{NEO4j_pass}@{NEO4j_adress}')
+NEOMODEL_MAX_POOL_SIZE = 50
+NEOMODEL_ENCRYPTED_CONNECTION = False
 
 
 # Password validation
@@ -118,3 +136,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
